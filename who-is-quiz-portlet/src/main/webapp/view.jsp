@@ -16,9 +16,7 @@
 
 <%@ include file="/init.jsp" %>
 
-<portlet:actionURL name="startQuiz" var="startURL">
-	<portlet:param name="redirect" value="" />
-</portlet:actionURL>
+<portlet:actionURL name="startQuiz" var="startURL" />
 
 <p>
     Welcome to the Liferay 'Who is' quiz.  This will test to see how well you know 
