@@ -14,8 +14,29 @@
  */
 --%>
 
-<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
+<%@ include file="/init.jsp" %>
 
-<portlet:defineObjects />
+<portlet:actionURL name="startQuiz" var="startURL">
+	<portlet:param name="redirect" value="" />
+</portlet:actionURL>
 
-This is the <b>who-is-quiz-portlet</b>.
+<p>
+    Welcome to the Liferay 'Who is' quiz.  This will test to see how well you know 
+    your co-workers. Please select your options to begin your quiz.
+</p>
+
+<aui:form action="<%= startURL %>" method="post" name="quiz" >
+	<aui:fieldset>
+	    <aui:select label="Quick Filter" name="quizFilter">
+	        <aui:option label="All employees" selected="true" value="all" />
+	        <aui:option label="Liferay Dalian" value="dalian" />
+	        <aui:option label="Liferay US" value="us" />
+	        <aui:option label="New hires" value="newhires" />
+	        <aui:option label="Interns" value="interns" />
+	    </aui:select>
+	    <aui:input label="Number of Questions" name="numQuestions" value="20" />
+	</aui:fieldset>
+	<aui:button-row>
+        <aui:button type="submit" value="Start Quiz" />
+    </aui:button-row>
+</aui:form>

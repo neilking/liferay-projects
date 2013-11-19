@@ -2,21 +2,24 @@
 
 <portlet-app xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd" version="2.0">
 	<portlet>
-		<portlet-name>who-is-quiz-portlet</portlet-name>
-		<display-name>who-is-quiz-portlet</display-name>
-		<portlet-class>com.liferay.util.bridges.mvc.MVCPortlet</portlet-class>
+		<portlet-name>who-is-quiz</portlet-name>
+		<display-name>Who is quiz</display-name>
+		<portlet-class>com.liferay.projects.quiz.QuizPortlet</portlet-class>
 		<init-param>
-			<name>view-jsp</name>
+			<name>view-template</name>
 			<value>/view.jsp</value>
 		</init-param>
+        <init-param>
+            <name>add-process-action-success-action</name>
+            <value>false</value>
+        </init-param>
 		<expiration-cache>0</expiration-cache>
 		<supports>
 			<mime-type>text/html</mime-type>
 		</supports>
 		<portlet-info>
-			<title>who-is-quiz-portlet</title>
-			<short-title>who-is-quiz-portlet</short-title>
-			<keywords>who-is-quiz-portlet</keywords>
+			<title>Who is quiz</title>
+			<short-title>Who is quiz</short-title>
 		</portlet-info>
 		<security-role-ref>
 			<role-name>administrator</role-name>
