@@ -8,188 +8,191 @@ import java.util.Random;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import javax.portlet.PortletSession;
 
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
+//import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.Organization;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.util.bridges.mvc.MVCPortlet;
 
 /**
  * Portlet implementation class QuizPortlet
  */
-public class QuizPortlet extends MVCPortlet
-{
+public class QuizPortlet extends MVCPortlet {
 
-    private final Random rand = new Random();
+	public void startQuiz( ActionRequest request, ActionResponse response )
+			throws PortalException, SystemException {
+//		final String quizFilter = ParamUtil.getString( request, "quizFilter" );
+		final int numQuestions = ParamUtil.getInteger( request, "numQuestions" );
 
-    public void startQuiz( ActionRequest request, ActionResponse response )
-    {
-//        final String quizFilter = ParamUtil.getString( request, "quizFilter" );
-        final String numQuestionsParm = ParamUtil.getString( request, "numQuestions" );
+		final ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute( WebKeys.THEME_DISPLAY );
+		final long companyId = themeDisplay.getCompanyId();
 
-        final ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute( WebKeys.THEME_DISPLAY );
-        final long companyId = themeDisplay.getCompanyId();
+		//try
+		//{
+			final Organization dalianOrg = OrganizationLocalServiceUtil.getOrganization( companyId, "Liferay Dalian" );
 
-        try
-        {
-            final Organization dalianOrg = OrganizationLocalServiceUtil.getOrganization( companyId, "Liferay Dalian" );
+			final List<User> orgUsers = UserLocalServiceUtil.getOrganizationUsers( dalianOrg.getOrganizationId() );
 
-            final List<User> orgUsers = UserLocalServiceUtil.getOrganizationUsers( dalianOrg.getOrganizationId() );
+			final List<User> pictureUsers = removeUsersWithoutProfilePicture( orgUsers, themeDisplay );
 
-            final List<User> pictureUsers = removeUsersWithoutProfilePicture( orgUsers, themeDisplay );
+			final List<User> users = Collections.unmodifiableList( pictureUsers );
 
-            final List<User> users = Collections.unmodifiableList( pictureUsers );
+			final List<User> quizUsers = pickAtRandom( users, numQuestions );
 
-            int numQuestions = Integer.parseInt( numQuestionsParm );
+			final Question[] questions = generateQuestions(quizUsers, users, numQuestions);
 
-            final List<User> quizUsers = pickAtRandom( users, numQuestions );
+			final User[] answers = new User[questions.length];
 
-            final Question[] questions = generateQuestions( quizUsers, users, numQuestions );
+			PortletSession portletSession = request.getPortletSession(true);
+			portletSession.setAttribute("questions", questions);
+			portletSession.setAttribute("answers", answers);
+			//SessionMessages.add(portletSession, "questions", questions);
+			//SessionMessages.add(portletSession, "answers", answers);
+			//HttpServletRequest httpRequest = PortalUtil.getHttpServletRequest( request );
+			//final HttpSession session = httpRequest.getSession();
+			//session.setAttribute( "questions", questions );
+			//session.setAttribute( "answers", answers );
 
-            final User[] answers = new User[questions.length];
+			response.setRenderParameter( "numQuestions", StringUtil.valueOf(numQuestions) );
+			response.setRenderParameter( "questionIndex", "0" );
+			response.setRenderParameter( "jspPage", "/html/question.jsp" );
+		//}
+		//catch( Exception e )
+		//{
+		//}
+	}
 
-            HttpServletRequest httpRequest = PortalUtil.getHttpServletRequest( request );
-            final HttpSession session = httpRequest.getSession();
-            session.setAttribute( "questions", questions );
-            session.setAttribute( "answers", answers );
+	public void continueQuiz( ActionRequest request, ActionResponse response )
+			throws PortalException, SystemException {
+		//final HttpServletRequest httpRequest = PortalUtil.getHttpServletRequest( request );
+		//final HttpSession session = httpRequest.getSession();
 
-            response.setRenderParameter( "numQuestions", numQuestionsParm );
-            response.setRenderParameter( "questionIndex", "0" );
-            response.setRenderParameter( "jspPage", "/question.jsp" );
-        }
-        catch( Exception e )
-        {
-        }
-    }
+		PortletSession portletSession = request.getPortletSession(true);
+		final Question[] questions = (Question[]) portletSession.getAttribute("questions");
 
-    public void continueQuiz( ActionRequest request, ActionResponse response )
-    {
-        final HttpServletRequest httpRequest = PortalUtil.getHttpServletRequest( request );
-        final HttpSession session = httpRequest.getSession();
-        
-        final Question[] questions = (Question[]) session.getAttribute( "questions" );
-        final User[] answers = (User[]) session.getAttribute( "answers" );
-        
-        final String numQuestionsParm = ParamUtil.getString( request, "numQuestions" );
-        final String questionIndexParam = ParamUtil.getString( request, "questionIndex" );
-        final int questionIndex = Integer.parseInt( questionIndexParam );
-        final String choice = ParamUtil.getString( request, "choice" );
-        final int choiceUserId = Integer.parseInt( choice );
+		final User[] answers = (User[]) portletSession.getAttribute("answers");
 
-        try
-        {
-            final User choiceUser = UserLocalServiceUtil.getUser( choiceUserId );
-            answers[questionIndex] = choiceUser;
-            
-            // last page? 
-            if( ( questions.length - 1 ) == questionIndex )
-            {
-                response.setRenderParameter( "jspPage", "/results.jsp" );
-            }
-            else
-            {
-                response.setRenderParameter( "numQuestions", numQuestionsParm );
-                response.setRenderParameter( "questionIndex", ( questionIndex + 1 ) + "" );
-                response.setRenderParameter( "jspPage", "/question.jsp" );
-            }
-        }
-        catch( Exception e )
-        {
-        }
-    }
+		final String numQuestions = ParamUtil.getString(request, "numQuestions");
 
-    private Question[] generateQuestions( List<User> quizUsers, List<User> poolUsers, int numQuestions )
-    {
-        List<Question> retval = new ArrayList<Question>();
+		final int questionIndex = ParamUtil.getInteger(request, "questionIndex");
 
-        final int poolSize = poolUsers.size();
+		final long choiceUserId = ParamUtil.getLong(request, "choice");
 
-        for( User user : quizUsers )
-        {
-            Question q = new Question( user );
+//		try
+//		{
+			final User choiceUser = UserLocalServiceUtil.getUser( choiceUserId );
+			answers[questionIndex] = choiceUser;
+			
+			// last page? 
+			if( ( questions.length - 1 ) == questionIndex ) {
+				response.setRenderParameter( "jspPage", "/html/results.jsp");
+			}
+			else {
+				response.setRenderParameter( "numQuestions", numQuestions);
+				response.setRenderParameter( "questionIndex", ( questionIndex + 1 ) + "");
+				response.setRenderParameter( "jspPage", "/html/question.jsp");
+			}
+//		}
+//		catch( Exception e )
+//		{
+//		}
+	}
 
-            // find 3 other users in the pool of users that are the same gender of question user
-            for( int i = 0; i < 3; i++ )
-            {
-                User choice = poolUsers.get( rand.nextInt( poolSize ) );
+	private Question[] generateQuestions( List<User> quizUsers, List<User> poolUsers, int numQuestions )
+	{
+		List<Question> retval = new ArrayList<Question>();
 
-                while( choice == user || ( !isSameGender( choice, user ) ) || q.getChoices().contains( choice ) )
-                {
-                    choice = poolUsers.get( rand.nextInt( poolSize ) );
-                }
+		final int poolSize = poolUsers.size();
 
-                q.addChoice( choice );
-            }
+		for( User user : quizUsers )
+		{
+			Question q = new Question( user );
 
-            retval.add( q );
-        }
+			// find 3 other users in the pool of users that are the same gender of question user
+			for( int i = 0; i < 3; i++ )
+			{
+				User choice = poolUsers.get( _rand.nextInt( poolSize ) );
 
-        return retval.toArray( new Question[0] );
-    }
+				while( choice == user || ( !isSameGender( choice, user ) ) || q.getChoices().contains( choice ) )
+				{
+					choice = poolUsers.get( _rand.nextInt( poolSize ) );
+				}
 
-    private boolean isSameGender( User choice, User user )
-    {
-        try
-        {
-            return choice.getMale() == user.getMale();
-        }
-        catch( Exception e )
-        {
-        }
-        return false;
-    }
+				q.addChoice( choice );
+			}
 
-    private List<User> pickAtRandom( List<User> users, int numOfPicks )
-    {
-        final List<User> retval = new ArrayList<User>();
+			retval.add( q );
+		}
 
-        final int size = users.size();
+		return retval.toArray( new Question[0] );
+	}
 
-        for( int i = 0; i < numOfPicks; i++ )
-        {
-            User nextUser = users.get( rand.nextInt( size ) );
+	private boolean isSameGender( User choice, User user )
+	{
+		try
+		{
+			return choice.getMale() == user.getMale();
+		}
+		catch( Exception e )
+		{
+		}
+		return false;
+	}
 
-            while( retval.contains( nextUser ) )
-            {
-                nextUser = users.get( rand.nextInt( size ) );
-            }
+	private List<User> pickAtRandom( List<User> users, int numOfPicks )
+	{
+		final List<User> retval = new ArrayList<User>();
 
-            retval.add( nextUser );
-        }
+		final int size = users.size();
 
-        return Collections.unmodifiableList( retval );
-    }
+		for( int i = 0; i < numOfPicks; i++ )
+		{
+			User nextUser = users.get( _rand.nextInt( size ) );
 
-    private List<User> removeUsersWithoutProfilePicture( List<User> users, ThemeDisplay themeDisplay )
-    {
-        List<User> retval = new ArrayList<User>();
+			//while( retval.contains( nextUser ) )
+			//{
+				//nextUser = users.get( _rand.nextInt( size ) );
+			//}
 
-        for( User user : users )
-        {
-            try
-            {
-                String portrait = user.getPortraitURL( themeDisplay );
+			retval.add( nextUser );
+		}
 
-                if( portrait.contains( "img_id=0" ) )
-                {
-                    continue;
-                }
-            }
-            catch( Exception e )
-            {
-            }
+		return Collections.unmodifiableList( retval );
+	}
 
-            retval.add( user );
-        }
+	private List<User> removeUsersWithoutProfilePicture( List<User> users, ThemeDisplay themeDisplay )
+	{
+		List<User> retval = new ArrayList<User>();
 
-        return retval;
-    }
+		for( User user : users )
+		{
+			try
+			{
+				String portrait = user.getPortraitURL( themeDisplay );
 
+				if( portrait.contains( "img_id=0" ) )
+				{
+					continue;
+				}
+			}
+			catch( Exception e )
+			{
+			}
+
+			retval.add( user );
+		}
+
+		return retval;
+	}
+
+	private final Random _rand = new Random();
 }

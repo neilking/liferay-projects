@@ -7,7 +7,7 @@
 		<portlet-class>com.liferay.projects.quiz.QuizPortlet</portlet-class>
 		<init-param>
 			<name>view-template</name>
-			<value>/view.jsp</value>
+			<value>/html/view.jsp</value>
 		</init-param>
         <init-param>
             <name>add-process-action-success-action</name>

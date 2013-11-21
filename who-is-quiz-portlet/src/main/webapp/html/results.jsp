@@ -13,17 +13,12 @@
  * details.
  */
 --%>
+<%@ include file="/html/init.jsp" %>
 
-<%@page import="java.text.DecimalFormat"%>
-<%@page import="java.text.NumberFormat"%>
-<%@page import="com.liferay.portal.model.User"%>
-<%@page import="com.liferay.projects.quiz.Question"%>
-<%@ include file="/init.jsp" %>
+<%
+final Question[] questions = (Question[])portletSession.getAttribute("questions");
 
-<%       
-final Question[] questions = (Question[])session.getAttribute("questions");
-
-final User[] answers = (User[])session.getAttribute("answers");
+final User[] answers = (User[])portletSession.getAttribute("answers");
 
 int correctAnswers = 0;
 

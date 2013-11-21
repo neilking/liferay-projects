@@ -1,13 +1,14 @@
 <?xml version="1.0"?>
-<!DOCTYPE liferay-portlet-app PUBLIC "-//Liferay//DTD Portlet Application 6.1.0//EN" "http://www.liferay.com/dtd/liferay-portlet-app_6_1_0.dtd">
+<!DOCTYPE liferay-portlet-app PUBLIC "-//Liferay//DTD Portlet Application 6.2.0//EN" "http://www.liferay.com/dtd/liferay-portlet-app_6_2_0.dtd">
 
 <liferay-portlet-app>
 	
 	<portlet>
 		<portlet-name>who-is-quiz</portlet-name>
-		<icon>/quiz_16x16.png</icon>
+		<icon>/icon.png</icon>
 		<instanceable>false</instanceable>
 		<css-class-wrapper>quiz-portlet</css-class-wrapper>
+		<add-default-resource>true</add-default-resource> 
 	</portlet>
 	<role-mapper>
 		<role-name>administrator</role-name>
