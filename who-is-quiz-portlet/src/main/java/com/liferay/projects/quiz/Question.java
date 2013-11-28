@@ -10,12 +10,12 @@ import com.liferay.portal.model.User;
 public class Question {
 
 	private User user;
-    private List<User> choices;
+	private List<User> choices;
 
 	public Question(User user) {
-        this.user = user;
-        this.choices = new ArrayList<User>();
-        this.choices.add(user);
+		this.user = user;
+		this.choices = new ArrayList<User>();
+		this.choices.add(user);
 	}
 
 	public void addChoice(User choice) {
@@ -25,9 +25,8 @@ public class Question {
 	public User getUser() {
 		return user;
 	}
-    
-	public List<User> getChoices()
-	{
+
+	public List<User> getChoices() {
 		long seed = System.nanoTime();
 		Collections.shuffle(this.choices, new Random(seed));
 		

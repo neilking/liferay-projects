@@ -25,12 +25,12 @@ final int questionIndex = ParamUtil.getInteger( request, "questionIndex");
 final Question[] questions = (Question[])portletSession.getAttribute("questions");
 //final Question[] questions = (Question[])SessionMessages.get(renderRequest, "questions");
 
-final Question currentQuestion = questions[questionIndex];
+Question currentQuestion = questions[questionIndex];
 
-final User currentUser = currentQuestion.getUser();
-final String userImage = currentUser.getPortraitURL(themeDisplay);
+User currentUser = currentQuestion.getUser();
+String userImage = currentUser.getPortraitURL(themeDisplay);
 
-final User[] choices = currentQuestion.getChoices().toArray(new User[0]);
+User[] choices = currentQuestion.getChoices().toArray(new User[0]);
 %>
 
 <portlet:actionURL name="continueQuiz" var="actionURL" />
