@@ -1,5 +1,17 @@
+package com.liferay.projects.quiz.portlet;
 
-package com.liferay.projects.quiz;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.model.Organization;
+import com.liferay.portal.model.User;
+import com.liferay.portal.service.OrganizationLocalServiceUtil;
+import com.liferay.portal.service.UserLocalServiceUtil;
+import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.projects.quiz.Question;
+import com.liferay.util.bridges.mvc.MVCPortlet;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,19 +21,6 @@ import java.util.Random;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletSession;
-
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
-//import com.liferay.portal.kernel.servlet.SessionMessages;
-import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.model.Organization;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.OrganizationLocalServiceUtil;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.util.bridges.mvc.MVCPortlet;
 
 /**
  * Portlet implementation class QuizPortlet

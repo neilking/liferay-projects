@@ -4,7 +4,7 @@
 	<portlet>
 		<portlet-name>who-is-quiz</portlet-name>
 		<display-name>Who is quiz</display-name>
-		<portlet-class>com.liferay.projects.quiz.QuizPortlet</portlet-class>
+		<portlet-class>com.liferay.projects.quiz.portlet.QuizPortlet</portlet-class>
 		<init-param>
 			<name>view-template</name>
 			<value>/html/view.jsp</value>
