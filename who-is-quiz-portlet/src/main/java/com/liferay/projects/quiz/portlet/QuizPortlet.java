@@ -44,7 +44,9 @@ public class QuizPortlet extends MVCPortlet {
 
 		List<User> pictureUsers = removeUsersWithoutProfilePicture(
 				orgUsers, themeDisplay);
-
+		if (numQuestions > pictureUsers.size()) {
+			numQuestions = pictureUsers.size();
+		}
 		List<User> users = Collections.unmodifiableList(pictureUsers);
 
 		List<User> quizUsers = pickAtRandom(users, numQuestions);
@@ -125,8 +127,7 @@ public class QuizPortlet extends MVCPortlet {
 	}
 
 	private boolean isSameGender(User choice, User user)
-			throws PortalException, SystemException
-	{
+			throws PortalException, SystemException {
 		return choice.getMale() == user.getMale();
 	}
 
@@ -136,12 +137,11 @@ public class QuizPortlet extends MVCPortlet {
 		int size = users.size();
 
 		for (int i = 0; i < numOfPicks; i++) {
-			User nextUser = users.get(_rand.nextInt( size ));
+			User nextUser = users.get(_rand.nextInt(size));
 
-			//while( retval.contains( nextUser ) )
-			//{
-				//nextUser = users.get( _rand.nextInt( size ) );
-			//}
+			while(retval.contains(nextUser)){
+				nextUser = users.get(_rand.nextInt(size));
+			}
 
 			retval.add(nextUser);
 		}
